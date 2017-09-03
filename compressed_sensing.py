@@ -1,6 +1,7 @@
 import numpy as np
-from . import mymath
 from numpy.lib.stride_tricks import as_strided
+
+import mymath
 
 
 def soft_thresh(u, lmda):
@@ -44,7 +45,7 @@ def var_dens_mask(shape, ivar, sample_high_freq=True):
 
 
 def cartesian_mask(shape, ivar, centred=False,
-                   sample_high_freq=True, sample_centre=True, sample_n=10):
+                   sample_high_freq=True, sample_centre=True, sample_n=16):
     """Undersamples along Nx
 
     Parameters
@@ -74,9 +75,8 @@ def cartesian_mask(shape, ivar, centred=False,
     mask = as_strided(mask, (Nt, Nx, Ny), (size * Nx, size, 0))
 
     if sample_centre:
-        s = sample_n / 2
-        xc = Nx / 2
-        yc = Ny / 2
+        s = int(sample_n / 2)
+        xc = int(Nx / 2)
         mask[:, xc - s:xc + s, :] = True
 
     if not centred:
@@ -106,7 +106,7 @@ def shear_grid_mask(shape, acceleration_rate, sample_low_freq=True,
     Nt, Nx, Ny = shape
     start = np.random.randint(0, acceleration_rate)
     mask = np.zeros((Nt, Nx))
-    for t in xrange(Nt):
+    for t in range(Nt):
         mask[t, (start+t)%acceleration_rate::acceleration_rate] = 1
 
     xc = Nx / 2
@@ -137,15 +137,15 @@ def perturbed_shear_grid_mask(shape, acceleration_rate, sample_low_freq=True,
     Nt, Nx, Ny = shape
     start = np.random.randint(0, acceleration_rate)
     mask = np.zeros((Nt, Nx))
-    for t in xrange(Nt):
+    for t in range(Nt):
         mask[t, (start+t)%acceleration_rate::acceleration_rate] = 1
 
     # brute force
     rand_code = np.random.randint(0, 3, size=Nt*Nx)
     shift = np.array([-1, 0, 1])[rand_code]
     new_mask = np.zeros_like(mask)
-    for t in xrange(Nt):
-        for x in xrange(Nx):
+    for t in range(Nt):
+        for x in range(Nx):
             if mask[t, x]:
                 new_mask[t, (x + shift[t*x])%Nx] = 1
 
